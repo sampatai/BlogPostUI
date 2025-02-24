@@ -14,11 +14,12 @@ export class EditCategoryComponent implements OnInit, OnDestroy {
   id: string | null = null;
   paramsSubscription?: Subscription;
   editcategorySubscription?: Subscription;
+  deletecategorySubscription?:Subscription;
   category?: Category;
   constructor(
     private route: ActivatedRoute,
     private categoryService: CategoryService,
-    private router:Router
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -35,15 +36,26 @@ export class EditCategoryComponent implements OnInit, OnDestroy {
       },
     });
   }
-  onFormSubmit():void{
-    const  updateCategoryRequest:UpdateCategoryRequest={
-      name:this.category?.name??'',
-      urlHandle:this.category?.urlHandle??''
+  onFormSubmit(): void {
+    const updateCategoryRequest: UpdateCategoryRequest = {
+      name: this.category?.name ?? '',
+      urlHandle: this.category?.urlHandle ?? '',
     };
     if (this.id)
-   this.editcategorySubscription= this.categoryService.updateCategory(this.id,updateCategoryRequest)
+      this.editcategorySubscription = this.categoryService
+        .updateCategory(this.id, updateCategoryRequest)
+        .subscribe({
+          next: (Response) => {
+            this.router.navigateByUrl('/admin/categories');
+          },
+        });
+  }
+  onDelete(): void {
+   
+    if(this.id)
+    this.deletecategorySubscription=this.categoryService.deleteCategory(this.id)
   .subscribe({
-    next:(Response)=>{
+    next:(res)=>{
       this.router.navigateByUrl('/admin/categories');
 
     }
@@ -52,5 +64,6 @@ export class EditCategoryComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.paramsSubscription?.unsubscribe();
     this.editcategorySubscription?.unsubscribe();
+    this.deletecategorySubscription?.unsubscribe();
   }
 }
